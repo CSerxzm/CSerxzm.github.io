@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言在实习过程中，发现有很多地方关于注解的编写使用，在以前理论学习的过程中，只知道那是框架的基础，如我们学习的spring，dubbo等框架，其中会包含大量的注解，这样方便了我们在平时的编程，在下面的文章中，我主要讲解注解的使用，以及完成简单的demo。在此通过深入的学习，并在自己的学习项目中使用注解和切面编程的方式实现读写锁。 学习对于注解的使用，我们首先要学习元注解，顾名思义，元注解就是注解的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="注解结合切面编程">
+<meta property="og:url" content="http://example.com/2021/12/11/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="没有代码的程序">
+<meta property="og:description" content="前言在实习过程中，发现有很多地方关于注解的编写使用，在以前理论学习的过程中，只知道那是框架的基础，如我们学习的spring，dubbo等框架，其中会包含大量的注解，这样方便了我们在平时的编程，在下面的文章中，我主要讲解注解的使用，以及完成简单的demo。在此通过深入的学习，并在自己的学习项目中使用注解和切面编程的方式实现读写锁。 学习对于注解的使用，我们首先要学习元注解，顾名思义，元注解就是注解的">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-11T12:09:18.472Z">
+<meta property="article:modified_time" content="2021-12-11T12:09:18.472Z">
+<meta property="article:author" content="CSerxzm">
+<meta property="article:tag" content="自定义注解">
+<meta property="article:tag" content="切面">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/12/11/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>注解结合切面编程 | 没有代码的程序</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">没有代码的程序</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/11/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="CSerxzm">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有代码的程序">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          注解结合切面编程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-11 20:09:18" itemprop="dateCreated datePublished" datetime="2021-12-11T20:09:18+08:00">2021-12-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在实习过程中，发现有很多地方关于注解的编写使用，在以前理论学习的过程中，只知道那是框架的基础，如我们学习的spring，dubbo等框架，其中会包含大量的注解，这样方便了我们在平时的编程，在下面的文章中，我主要讲解注解的使用，以及完成简单的demo。在此通过深入的学习，并在自己的学习项目中使用注解和切面编程的方式实现读写锁。</p>
+<h3 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h3><p>对于注解的使用，我们首先要学习元注解，顾名思义，元注解就是注解的注解，它是实现在注解中的，方便我们实现想要的功能。元注解分别有：@Retention、 @Target、 @Document、 @Inherited和@Repeatable（JDK1.8加入）五种。</p>
+<ul>
+<li>@Retention，它是保留保持的意思，其中它的值可以是枚举类RetentionPolicy中的枚举值，用以表示注解的保留时期,具体的使用，看源代码中注解。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">RetentionPolicy</span> </span>&#123;</span><br><span class="line">    SOURCE,<span class="comment">//注解仅存在于源码中，在class字节码文件中不包含</span></span><br><span class="line">    CLASS,<span class="comment">//默认的保留策略，注解会在class字节码文件中存在，但运行时无法获得</span></span><br><span class="line">    RUNTIME<span class="comment">//注解会在class字节码文件中存在，在运行时可以通过反射获取到</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过以上的注释，我们自定义注解如果只存着源码中或者字节码文件中就无法发挥作用，而在运行期间能获取到注解才能实现我们目的，所以使用<code>RUNTIME</code>。</p>
+<ul>
+<li>@Target，它表示自定义的注解可以使用的对象(类、方法、变量等)。其可用的值见以下源码：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">ElementType</span> </span>&#123;</span><br><span class="line">    TYPE,<span class="comment">//作用于接口、类、枚举以及注解</span></span><br><span class="line">    FIELD,<span class="comment">//作用于属性字段、枚举的常量</span></span><br><span class="line">    METHOD,<span class="comment">//作用于方法</span></span><br><span class="line">    PARAMETER,<span class="comment">//作用于方法参数</span></span><br><span class="line">    CONSTRUCTOR,<span class="comment">//作用于构造方法</span></span><br><span class="line">    LOCAL_VARIABLE,<span class="comment">//作用于局部常量</span></span><br><span class="line">    ANNOTATION_TYPE,<span class="comment">//作用于注解，如@Retention</span></span><br><span class="line">    PACKAGE,<span class="comment">//作用于包</span></span><br><span class="line">    TYPE_PARAMETER,<span class="comment">//作用于类型泛型，即类型方法，泛型类，泛型接口</span></span><br><span class="line">    TYPE_USE<span class="comment">//用于标注任意类型除了class </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>@Documented，它的作用是能够将注解中的元素包含到 Javadoc 中去。</li>
+<li>@Inherited，它的意思是继承，但是它的继承与java类中的继承大同小异，一个被@Inherited注解了的注解修饰了一个父类，如果他的子类没有被其他注解修饰，则它的子类也继承了父类的注解。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**自定义注解*/</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> MyTestAnnotation &#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**父类标注自定义注解*/</span></span><br><span class="line"><span class="meta">@MyTestAnnotation</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**子类*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**测试子类获取父类自定义注解*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//获取Son的class对象</span></span><br><span class="line">       Class&lt;Son&gt; sonClass = Son.class;</span><br><span class="line">      <span class="comment">// 获取Son类上的注解MyTestAnnotation可以执行成功</span></span><br><span class="line">      MyTestAnnotation annotation = sonClass.getAnnotation(MyTestAnnotation.class);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>@Repeatable，可重复的。顾名思义说明被这个元注解修饰的注解可以同时作用一个对象多次，但是每次作用注解又可以代表不同的含义。</li>
+</ul>
+<p>注解的定义其实也比较简单，我们通过看spring中<code>@GetMapping</code>注解来进行讲解。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(&#123;ElementType.METHOD&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@RequestMapping(</span></span><br><span class="line"><span class="meta">    method = &#123;RequestMethod.GET&#125;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> GetMapping &#123;</span><br><span class="line">    <span class="function">String <span class="title">name</span><span class="params">()</span> <span class="keyword">default</span> &quot;&quot;</span>;</span><br><span class="line">    String[] value() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] path() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] params() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] headers() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] consumes() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">    String[] produces() <span class="keyword">default</span> &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由上面的示例我们知道注解的定义就是@interface加一些属性，其中属性的格式为<code>类型  属性名() default 默认值</code>。</p>
+<ul>
+<li>自定义注解示例</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Documented</span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> MyTestAnnotation &#123;</span><br><span class="line">    <span class="function">String <span class="title">name</span><span class="params">()</span> <span class="keyword">default</span> &quot;mao&quot;</span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">age</span><span class="params">()</span> <span class="keyword">default</span> 18</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@MyTestAnnotation(name = &quot;father&quot;,age = 50)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Father</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>获取注解的属性,前面我们了解到注解定义和使用，现在我们要获取注解的值，只有能获得注解的值，我们定义的注解才有意义。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchMethodException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 获取类注解属性</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        Class&lt;Father&gt; fatherClass = Father.class;</span><br><span class="line">        <span class="keyword">boolean</span> annotationPresent = fatherClass.isAnnotationPresent(MyTestAnnotation.class);</span><br><span class="line">        <span class="keyword">if</span>(annotationPresent)&#123;</span><br><span class="line">            MyTestAnnotation annotation = fatherClass.getAnnotation(MyTestAnnotation.class);</span><br><span class="line">            System.out.println(annotation.name());</span><br><span class="line">            System.out.println(annotation.age());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 获取方法注解属性</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Field age = fatherClass.getDeclaredField(<span class="string">&quot;age&quot;</span>);</span><br><span class="line">            <span class="keyword">boolean</span> annotationPresent1 = age.isAnnotationPresent(Age.class);</span><br><span class="line">            <span class="keyword">if</span>(annotationPresent1)&#123;</span><br><span class="line">                Age annotation = age.getAnnotation(Age.class);</span><br><span class="line">                System.out.println(annotation.value());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            Method play = PlayGame.class.getDeclaredMethod(<span class="string">&quot;play&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (play!=<span class="keyword">null</span>)&#123;</span><br><span class="line">                People annotation2 = play.getAnnotation(People.class);</span><br><span class="line">                Game[] value = annotation2.value();</span><br><span class="line">                <span class="keyword">for</span> (Game game : value) &#123;</span><br><span class="line">                    System.out.println(game.value());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h3><p>在项目中，注解一般和反射结合使用，这里再我的video项目中使用到自定义的注解，这也是一种尝试吧，项目中关键代码也有相关的注释，有兴趣的同学可以去查看。<a target="_blank" rel="noopener" href="https://github.com/CSerxzm/video">https://github.com/CSerxzm/video</a></p>
+<p>其大概的业务背景是对于视频的收藏、点赞、投币是需要读写锁的，用于解决并发情况下的读写不一致的问题，但是我们对于以上三种又是没有关系的，我的本意是将这三种的读写锁放入到map中（单例对象），其中使用枚举类<code>LockName</code>来表示锁的名字（收藏、点赞、投币），用枚举类<code>LockType</code>来表示锁的类型（读锁、写锁）。那么自定义的注解<code>MyLock</code>中应该包括这两个属性，用于对逻辑代码进行加锁,后面使用spring的aop进行拦截和修饰，达到加锁和解锁的目的。</p>
+<blockquote>
+<p>以下是关键代码，有兴趣的可以查看工程。</p>
+</blockquote>
+<p><strong>枚举定义</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">LockName</span> </span>&#123;</span><br><span class="line">    FAVORITE(<span class="number">1</span>,<span class="string">&quot;收藏&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">LockType</span> </span>&#123;</span><br><span class="line">    WRITE(<span class="number">1</span>,<span class="string">&quot;写锁&quot;</span>),READ(<span class="number">2</span>,<span class="string">&quot;读锁&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注解的定义</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Inherited</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> MyLock &#123;</span><br><span class="line">    <span class="function">LockName <span class="title">name</span><span class="params">()</span></span>;<span class="comment">//锁的类型</span></span><br><span class="line">    <span class="function">LockType <span class="title">type</span><span class="params">()</span></span>;<span class="comment">//锁的名字</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>切面和注解的结合</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLockAspect</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(value = &quot;@annotation(com.xzm.video.annotation.MyLock)&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">handler</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">//通过反射得到注解对象</span></span><br><span class="line">        Signature signature = joinPoint.getSignature();</span><br><span class="line">        Method method = ((MethodSignature) signature).getMethod();</span><br><span class="line">        Method declaredMethod = joinPoint.getTarget().getClass().getDeclaredMethod(signature.getName(), method.getParameterTypes());</span><br><span class="line">        MyLock annotation = declaredMethod.getAnnotation(MyLock.class);</span><br><span class="line">        <span class="comment">//获得锁的种类</span></span><br><span class="line">        LockType type = annotation.type();</span><br><span class="line">        LockName name = annotation.name();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//该map为单例对象</span></span><br><span class="line">        Map&lt;LockName, ReentrantReadWriteLock&gt; lockMap = LockMap.getLockMap();</span><br><span class="line"></span><br><span class="line">        ReentrantReadWriteLock readWriteLock = lockMap.get(name);</span><br><span class="line">        Object proceed=<span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span>(type==LockType.READ)&#123;</span><br><span class="line">            ReentrantReadWriteLock.ReadLock lock = readWriteLock.readLock();</span><br><span class="line">            System.out.println(<span class="string">&quot;加读锁&quot;</span>);</span><br><span class="line">            lock.lock();</span><br><span class="line">            proceed = joinPoint.proceed();</span><br><span class="line">            lock.unlock();</span><br><span class="line">            System.out.println(<span class="string">&quot;释放读锁&quot;</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            ReentrantReadWriteLock.WriteLock lock = readWriteLock.writeLock();</span><br><span class="line">            System.out.println(<span class="string">&quot;加写锁&quot;</span>);</span><br><span class="line">            lock.lock();</span><br><span class="line">            proceed = joinPoint.proceed();</span><br><span class="line">            lock.unlock();</span><br><span class="line">            System.out.println(<span class="string">&quot;释放写锁&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> proceed;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注解使用</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MyLock(name= LockName.FAVORITE,type= LockType.WRITE)</span> <span class="comment">//该部分有待测试</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ResultInfo <span class="title">addFavoriteNum</span><span class="params">(User user, Integer id)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//逻辑代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">加写锁</span><br><span class="line">释放写锁</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>虽然示例比较low,但是还是要总结下的。</p>
+<p><strong>注解的作用</strong></p>
+<ul>
+<li>提供信息给编译器： 编译器可以利用注解来检测出错误或者警告信息，打印出日志。</li>
+<li>编译阶段时的处理： 软件工具可以用来利用注解信息来自动生成代码、文档或者做其它相应的自动处理。</li>
+<li>运行时处理： 某些注解可以在程序运行的时候接受代码的提取，自动做相应的操作。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/" rel="tag"># 自定义注解</a>
+              <a href="/tags/%E5%88%87%E9%9D%A2/" rel="tag"># 切面</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/11/IP%E8%BF%87%E6%BB%A4%E7%BB%9F%E8%AE%A1%E6%B5%8F%E8%A7%88%E9%87%8F/" rel="prev" title="IP过滤统计浏览量">
+      <i class="fa fa-chevron-left"></i> IP过滤统计浏览量
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/11/%E5%BC%82%E5%B8%B8/" rel="next" title="异常">
+      异常 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0"><span class="nav-number">2.</span> <span class="nav-text">学习</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-number">3.</span> <span class="nav-text">实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="CSerxzm"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">CSerxzm</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/CSerxzm" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;CSerxzm" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:xzm3052720966@gmail.com" title="E-Mail → mailto:xzm3052720966@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CSerxzm</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">25k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">23 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
