@@ -28,7 +28,7 @@
 <meta property="og:description" content="欢迎来访虽然现在是独立博客式微的时代，但无论你是根据关键词自搜索引擎而来，还是从SNS、朋友引荐而来，能在众多博客中与你相遇，也未尝不是一种缘分。欢迎你！ 没有代码的程序是我的个人独立博客，基本上啥都写。原创内容多为技术分享、踩坑记录与日常吐槽，以「有用且有趣」为追求，偶尔也会写点正经文字。 关于我 以计算机人CSerxzm自诩的理工男； 计算机专业本硕生，偶尔写点代码； 对JAVA、C++和Py">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-11T12:11:16.000Z">
-<meta property="article:modified_time" content="2021-12-12T04:05:50.934Z">
+<meta property="article:modified_time" content="2021-12-14T03:22:29.485Z">
 <meta property="article:author" content="CSerxzm">
 <meta property="article:tag" content="没有代码的程序">
 <meta name="twitter:card" content="summary">
@@ -132,6 +132,11 @@
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-guestbook">
+
+    <a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言</a>
 
   </li>
         <li class="menu-item menu-item-about">
@@ -414,6 +419,35 @@
   
 
   
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Ua5Gzcq0VGEcaW00KXi0xHgL-9Nh9j0Va',
+      appKey     : 'AP3QGO8V4O7upuz0qVFRGeu0',
+      placeholder: "请在此输入你的脚步",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
 
 </body>
 </html>
