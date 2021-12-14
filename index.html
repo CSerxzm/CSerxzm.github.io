@@ -168,6 +168,101 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/14/java-stream/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="CSerxzm">
+      <meta itemprop="description" content="这是我的个人博客分享平台">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有代码的程序">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/14/java-stream/" class="post-title-link" itemprop="url">java-stream</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-12-14 14:53:14 / 修改时间：19:38:00" itemprop="dateCreated datePublished" datetime="2021-12-14T14:53:14+08:00">2021-12-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Java 8 API添加了一个新的抽象称为流Stream，可以让你以一种声明的方式处理数据。</p>
+<p>Stream API可以极大提高Java程序员的生产力，让程序员写出高效率、干净、简洁的代码。这种风格将要处理的元素集合看作一种流， 流在管道中传输， 并且可以在管道的节点上进行处理， 比如筛选， 排序，聚合等。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+--------------------+       +------+   +------+   +---+   +-------+</span><br><span class="line">| stream of elements +-----&gt; |filter+-&gt; |sorted+-&gt; |map+-&gt; |collect|</span><br><span class="line">+--------------------+       +------+   +------+   +---+   +-------+</span><br></pre></td></tr></table></figure>
+
+<h2 id="生成Stream"><a href="#生成Stream" class="headerlink" title="生成Stream"></a>生成Stream</h2><p>生成Stream的方法比较多样。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/14/java-stream/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/13/git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1076,105 +1171,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2020/07/18/%E5%BC%82%E5%B8%B8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/head.jpg">
-      <meta itemprop="name" content="CSerxzm">
-      <meta itemprop="description" content="这是我的个人博客分享平台">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="没有代码的程序">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/18/%E5%BC%82%E5%B8%B8/" class="post-title-link" itemprop="url">异常</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-18 22:33:45" itemprop="dateCreated datePublished" datetime="2020-07-18T22:33:45+08:00">2020-07-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-14 11:23:33" itemprop="dateModified" datetime="2021-12-14T11:23:33+08:00">2021-12-14</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
-                </span>
-            </span>
-
-          
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h1><h2 id="什么是异常"><a href="#什么是异常" class="headerlink" title="什么是异常"></a>什么是异常</h2><p>在java运行的时候，常常会出现一些非正常的现象，这种情况成为运行错误。根据其错误可以分为错误和异常。所有抛出的异常都必须从<strong>Throwable</strong>派生而来。对于类Throwable有两个直接的子类：<strong>Error</strong>和<strong>Exception</strong>。</p>
-<p>对于<strong>Error</strong>，是由java虚拟机生成并抛出的，通常情况下，我们不对该类异常进行处理，因为这种情况发生时，程序本身无法解决，只能通知用户胡，并通过其他程序进行干预，如死循环或者内存泄漏。</p>
-<p>对于<strong>Exception</strong>，这是在程序执行时遇到的非正常情况或意外行为。这种情况不像Error类那样，程序运行时本身可以解决，由异常代码调整程序运行方向，使程序仍可以继续运行，直到正常结束。常见的由代码或调用的代码有错误，操作系统资源不可用，数组下标越界、算法溢出、除数为零等。<strong>Exception</strong>类对象是java程序处理或抛弃的对象，它有很多子类分别对应不同类型的异常。<strong>Java编译器要求程序必须捕获或声明所有的非运行时异常（又叫Checked异常），但对运行时异常可以不做处理。</strong>RuntimeException代表运行时由java虚拟机生成的异常，原因是编程错误，需要修改程序代码。其他则为非运行时异常，原因是程序碰到了意外情况，如输入/输出异常。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/07/18/%E5%BC%82%E5%B8%B8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1246,7 +1242,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1259,7 +1255,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1303,12 +1299,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">82k</span>
+    <span title="站点总字数">92k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:15</span>
+    <span title="站点阅读时长">1:24</span>
 </div>
 
         
