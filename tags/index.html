@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"cserxzm.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"cserxzm.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="这是我的个人博客分享平台">
@@ -134,14 +134,14 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
-        <li class="menu-item menu-item-guestbook">
-
-    <a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言</a>
-
-  </li>
         <li class="menu-item menu-item-about">
 
     <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-guestbook">
+
+    <a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言</a>
 
   </li>
   </ul>
@@ -193,10 +193,10 @@
       <div class="post-body">
           <div class="tag-cloud">
             <div class="tag-cloud-title">
-              目前共计 17 个标签
+              目前共计 18 个标签
             </div>
             <div class="tag-cloud-tags">
-              <a href="/tags/Exception/" style="font-size: 21px; color: #6f6f6f">Exception</a> <a href="/tags/IP%E8%BF%87%E6%BB%A4/" style="font-size: 21px; color: #6f6f6f">IP过滤</a> <a href="/tags/git/" style="font-size: 12px; color: #ccc">git</a> <a href="/tags/hexo/" style="font-size: 12px; color: #ccc">hexo</a> <a href="/tags/lambda/" style="font-size: 12px; color: #ccc">lambda</a> <a href="/tags/redis/" style="font-size: 30px; color: #111">redis</a> <a href="/tags/springboot/" style="font-size: 12px; color: #ccc">springboot</a> <a href="/tags/stream/" style="font-size: 12px; color: #ccc">stream</a> <a href="/tags/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" style="font-size: 12px; color: #ccc">代理模式</a> <a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/" style="font-size: 12px; color: #ccc">函数式接口</a> <a href="/tags/%E5%88%87%E9%9D%A2/" style="font-size: 12px; color: #ccc">切面</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 12px; color: #ccc">多线程</a> <a href="/tags/%E6%89%8B%E5%8A%A8%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93/" style="font-size: 12px; color: #ccc">手动模板渲染</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 12px; color: #ccc">泛型</a> <a href="/tags/%E6%B3%A8%E8%A7%A3/" style="font-size: 21px; color: #6f6f6f">注解</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/" style="font-size: 12px; color: #ccc">自定义注解</a> <a href="/tags/%E9%A1%B5%E9%9D%A2%E7%BC%93%E5%AD%98/" style="font-size: 12px; color: #ccc">页面缓存</a>
+              <a href="/tags/Exception/" style="font-size: 30px; color: #111">Exception</a> <a href="/tags/IP%E8%BF%87%E6%BB%A4/" style="font-size: 12px; color: #ccc">IP过滤</a> <a href="/tags/git/" style="font-size: 12px; color: #ccc">git</a> <a href="/tags/hexo/" style="font-size: 12px; color: #ccc">hexo</a> <a href="/tags/lambda/" style="font-size: 12px; color: #ccc">lambda</a> <a href="/tags/redis/" style="font-size: 30px; color: #111">redis</a> <a href="/tags/springboot/" style="font-size: 12px; color: #ccc">springboot</a> <a href="/tags/stream/" style="font-size: 12px; color: #ccc">stream</a> <a href="/tags/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" style="font-size: 12px; color: #ccc">代理模式</a> <a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3/" style="font-size: 12px; color: #ccc">函数式接口</a> <a href="/tags/%E5%88%87%E9%9D%A2/" style="font-size: 12px; color: #ccc">切面</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 12px; color: #ccc">多线程</a> <a href="/tags/%E6%89%8B%E5%8A%A8%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93/" style="font-size: 12px; color: #ccc">手动模板渲染</a> <a href="/tags/%E6%B3%9B%E5%9E%8B/" style="font-size: 12px; color: #ccc">泛型</a> <a href="/tags/%E6%B3%A8%E8%A7%A3/" style="font-size: 30px; color: #111">注解</a> <a href="/tags/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3/" style="font-size: 12px; color: #ccc">自定义注解</a> <a href="/tags/%E9%9A%8F%E7%AC%94/" style="font-size: 12px; color: #ccc">随笔</a> <a href="/tags/%E9%A1%B5%E9%9D%A2%E7%BC%93%E5%AD%98/" style="font-size: 12px; color: #ccc">页面缓存</a>
             </div>
           </div>
         
@@ -282,13 +282,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
