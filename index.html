@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-31 10:50:02" itemprop="dateModified" datetime="2021-12-31T10:50:02+08:00">2021-12-31</time>
+                <time title="修改时间：2021-12-31 10:53:50" itemprop="dateModified" datetime="2021-12-31T10:53:50+08:00">2021-12-31</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,8 +243,10 @@
 <p>ZYNQ的开发板是由PS部分的双核arm和PL部分的可编程逻辑组成。可以通过SDK进行下载比特流进行编程，但是这样会导致ZYNQ重启，后面更新，支持热加载对FPGA部分进行编程。</p>
 <p>其前提是PS部分已经运行arm版本的unix系统，让后进行下面的操作步骤：</p>
 <ol>
-<li>Vivado 2018.2生成.bit比特流，进入到/runs/impl_1/ 查看是否生成.bit文件。</li>
-<li>在/runs/impl_1/ 中新建Full_Bitstream.bif ,并将在此文件下输入以下内容：</li>
+<li><p>Vivado 2018.2生成.bit比特流，进入到/runs/impl_1/ 查看是否生成.bit文件。</p>
+</li>
+<li><p>在/runs/impl_1/ 中新建Full_Bitstream.bif ,并将在此文件下输入以下内容：</p>
+</li>
 </ol>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">all:</span><br><span class="line">&#123;</span><br><span class="line">      E:/ZYNQ/project_2/project_2.runs/impl_1/design_1_wrapper.bit</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
