@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cserxzm.cn","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="​    在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。 ​    Open Firmware Device Tree或者简单设备树，是一种">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zynq中Linux修改设备树">
+<meta property="og:url" content="http://cserxzm.cn/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/index.html">
+<meta property="og:site_name" content="没有代码的程序">
+<meta property="og:description" content="​    在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。 ​    Open Firmware Device Tree或者简单设备树，是一种">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-06T05:50:48.000Z">
+<meta property="article:modified_time" content="2022-01-06T08:27:21.300Z">
+<meta property="article:author" content="CSerxzm">
+<meta property="article:tag" content="spi">
+<meta property="article:tag" content="设备树">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://cserxzm.cn/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>zynq中Linux修改设备树 | 没有代码的程序</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">没有代码的程序</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-guestbook">
+
+    <a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="CSerxzm">
+      <meta itemprop="description" content="这是我的个人博客分享平台">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有代码的程序">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          zynq中Linux修改设备树
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-06 13:50:48 / 修改时间：16:27:21" itemprop="dateCreated datePublished" datetime="2022-01-06T13:50:48+08:00">2022-01-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/verilog/" itemprop="url" rel="index"><span itemprop="name">verilog</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>​    在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。</p>
+<p>​    <code>Open Firmware Device Tree</code>或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用DTS描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree发源于PowerPC架构，目的是为了为了消除代码中冗余的各种device注册代码而产生的，现在已经成为了linux的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由Node(节点)、Property(属性)两种元素组成。</p>
+<p>​    在Linux的默认的存在几乎所有的驱动设备的设备镜像，只是没有使能，处于<code>disable</code>的状态，在运行的Linux可以动态的修改，这就需要我们进行Overlay,以SPI为例，进行下面的操作，重写设备树。</p>
+<ul>
+<li>准备文件<code>spi_overlay.dts</code>，后面将他转换成dtbo格式。</li>
+</ul>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">/*</span> <span class="string">Device Tree Overlay for tl-emio-emac-demo test */</span></span><br><span class="line"></span><br><span class="line"><span class="attr">/dts-v1/;</span></span><br><span class="line"><span class="attr">/plugin/;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">/</span> <span class="string">&#123;</span></span><br><span class="line"></span><br><span class="line">        <span class="meta">fragment@0</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">target</span> = <span class="string">&lt;&amp;fpga_full&gt;;</span></span><br><span class="line">                <span class="attr">overlay0</span>: <span class="string">__overlay__ &#123;</span></span><br><span class="line"><span class="comment">                        #address-cells = &lt;1&gt;;</span></span><br><span class="line"><span class="comment">                        #size-cells = &lt;1&gt;;</span></span><br><span class="line">                        <span class="meta">firmware-name</span> = <span class="string">&quot;design_1_wrapper.bit.bin&quot;;</span></span><br><span class="line">                <span class="attr">&#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="attr">&#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="meta">fragment@1</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">target</span> = <span class="string">&lt;&amp;spi0&gt;;</span></span><br><span class="line">                <span class="attr">overlay1</span>: <span class="string">__overlay__ &#123;</span></span><br><span class="line">                        <span class="attr">status</span> = <span class="string">&quot;okay&quot;;</span></span><br><span class="line">                        <span class="meta">device@0</span> <span class="string">&#123;</span></span><br><span class="line">                                <span class="meta">//compatible</span> = <span class="string">&quot;spidev&quot;;</span></span><br><span class="line">                                <span class="attr">compatible</span> = <span class="string">&quot;rohm,dh2228fv&quot;; // Avoid warning info in dmesg</span></span><br><span class="line">                                <span class="attr">reg</span> = <span class="string">&lt;0&gt;; //cs_0</span></span><br><span class="line">                                <span class="meta">spi-max-frequency</span> = <span class="string">&lt;2500000&gt;;</span></span><br><span class="line"><span class="comment">                                #address-cells = &lt;1&gt;;</span></span><br><span class="line"><span class="comment">                                #size-cells = &lt;1&gt;;</span></span><br><span class="line">                        <span class="meta">&#125;;</span> <span class="string"></span></span><br><span class="line">                <span class="attr">&#125;;</span></span><br><span class="line">        <span class="attr">&#125;;</span></span><br><span class="line"><span class="attr">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>转换成dtbo的文件格式使用的脚本,此后运行将会产生dtbo格式的文件。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> -lt 1 ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;usage: <span class="variable">$0</span> dts_source&quot;</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">filename=<span class="variable">$1</span></span><br><span class="line">name=<span class="variable">$&#123;filename%.*&#125;</span></span><br><span class="line">DTC=dtc</span><br><span class="line"><span class="comment">#DTC=dtc</span></span><br><span class="line"><span class="variable">$&#123;DTC&#125;</span> -O dtb -o <span class="variable">$&#123;name&#125;</span>.dtbo -b 0 -@ <span class="variable">$&#123;filename&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果没有dtc工具，可运行 apt-get install device-tree-compiler -y 进行安装后，再执行上面的脚本文件。</p>
+</blockquote>
+<ul>
+<li>后面进行以下的指令执行。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root@pynq:/home/xilinx<span class="comment"># mkdir /configfs</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># ls /configfs/</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># mount -t configfs configfs /configfs</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># ls /configfs/</span></span><br><span class="line">device-tree</span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># ls /configfs/device-tree/overlays/</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># mkdir /configfs/device-tree/overlays/spi</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># ls /configfs/device-tree/overlays/spi</span></span><br><span class="line">dtbo  path  status</span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># cp spi_overlay.dtbo /lib/firmware/</span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># echo spi_overlay.dtbo &gt; /configfs/device-tree/overlays/spi/path </span></span><br><span class="line">root@pynq:/home/xilinx<span class="comment"># ls /dev/spidev*</span></span><br><span class="line">/dev/spidev1.0</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用测试spi_test.c文件进行测试</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#include &lt;stdint.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;unistd.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;stdio.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;stdlib.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;string.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;getopt.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;fcntl.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;sys/ioctl.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;linux/types.h&gt;</span></span><br><span class="line"><span class="comment">#include &lt;linux/spi/spidev.h&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))</span></span><br><span class="line"></span><br><span class="line">static void pabort(const char *s)</span><br><span class="line">&#123;</span><br><span class="line">    perror(s);</span><br><span class="line">    abort();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static const char *device = <span class="string">&quot;/dev/spidev1.0&quot;</span>;</span><br><span class="line">static uint32_t mode;</span><br><span class="line">static uint8_t bits = 8;</span><br><span class="line">static uint32_t speed = 2500000;</span><br><span class="line">static uint16_t delay;</span><br><span class="line">static int verbose;</span><br><span class="line"></span><br><span class="line">uint8_t default_tx[] = &#123;</span><br><span class="line">    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,</span><br><span class="line">    0x40, 0x00, 0x00, 0x00, 0x00, 0x95,</span><br><span class="line">    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,</span><br><span class="line">    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,</span><br><span class="line">    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,</span><br><span class="line">    0xF0, 0x0D,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">uint8_t default_rx[ARRAY_SIZE(default_tx)] = &#123;0, &#125;;</span><br><span class="line">char *input_tx;</span><br><span class="line"></span><br><span class="line">static void hex_dump(const void *src, size_t length, size_t line_size, char *prefix)</span><br><span class="line">&#123;</span><br><span class="line">    int i = 0;</span><br><span class="line">    const unsigned char *address = src;</span><br><span class="line">    const unsigned char *line = address;</span><br><span class="line">    unsigned char c;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s | &quot;</span>, prefix);</span><br><span class="line">    <span class="keyword">while</span> (length-- &gt; 0) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, *address++);</span><br><span class="line">        <span class="keyword">if</span> (!(++i % line_size) || (length == 0 &amp;&amp; i % line_size)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (length == 0) &#123;</span><br><span class="line">                <span class="keyword">while</span> (i++ % line_size)</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;__ &quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot; | &quot;</span>);  /* right close */</span><br><span class="line">            <span class="keyword">while</span> (line &lt; address) &#123;</span><br><span class="line">                c = *line++;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>, (c &lt; 33 || c == 255) ? 0x2E : c);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (length &gt; 0)</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%s | &quot;</span>, prefix);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/*</span><br><span class="line"> *  Unescape - process hexadecimal escape character</span><br><span class="line"> *      converts shell input <span class="string">&quot;\x23&quot;</span> -&gt; 0x23</span><br><span class="line"> */</span><br><span class="line">static int unescape(char *_dst, char *_src, size_t len)</span><br><span class="line">&#123;</span><br><span class="line">    int ret = 0;</span><br><span class="line">    char *src = _src;</span><br><span class="line">    char *dst = _dst;</span><br><span class="line">    unsigned int ch;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (*src) &#123;</span><br><span class="line">        <span class="keyword">if</span> (*src == <span class="string">&#x27;\\&#x27;</span> &amp;&amp; *(src+1) == <span class="string">&#x27;x&#x27;</span>) &#123;</span><br><span class="line">            sscanf(src + 2, <span class="string">&quot;%2x&quot;</span>, &amp;ch);</span><br><span class="line">            src += 4;</span><br><span class="line">            *dst++ = (unsigned char)ch;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            *dst++ = *src++;</span><br><span class="line">        &#125;</span><br><span class="line">        ret++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void transfer(int fd, uint8_t const *tx, uint8_t const *rx, size_t len)</span><br><span class="line">&#123;</span><br><span class="line">    int ret;</span><br><span class="line"></span><br><span class="line">    struct spi_ioc_transfer tr = &#123;</span><br><span class="line">        .tx_buf = (unsigned long)tx,</span><br><span class="line">        .rx_buf = (unsigned long)rx,</span><br><span class="line">        .len = len,</span><br><span class="line">        .delay_usecs = delay,</span><br><span class="line">        .speed_hz = speed,</span><br><span class="line">        .bits_per_word = bits,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mode &amp; SPI_TX_QUAD)</span><br><span class="line">        tr.tx_nbits = 4;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (mode &amp; SPI_TX_DUAL)</span><br><span class="line">        tr.tx_nbits = 2;</span><br><span class="line">    <span class="keyword">if</span> (mode &amp; SPI_RX_QUAD)</span><br><span class="line">        tr.rx_nbits = 4;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (mode &amp; SPI_RX_DUAL)</span><br><span class="line">        tr.rx_nbits = 2;</span><br><span class="line">    <span class="keyword">if</span> (!(mode &amp; SPI_LOOP)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mode &amp; (SPI_TX_QUAD | SPI_TX_DUAL))</span><br><span class="line">            tr.rx_buf = 0;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (mode &amp; (SPI_RX_QUAD | SPI_RX_DUAL))</span><br><span class="line">            tr.tx_buf = 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ret = ioctl(fd, SPI_IOC_MESSAGE(1), &amp;tr);</span><br><span class="line">    <span class="keyword">if</span> (ret &lt; 1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t send spi message&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (verbose)</span><br><span class="line">        hex_dump(tx, len, 32, <span class="string">&quot;TX&quot;</span>);</span><br><span class="line">    hex_dump(rx, len, 32, <span class="string">&quot;RX&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void print_usage(const char *prog)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Usage: %s [-DsbdlHOLC3]\n&quot;</span>, prog);</span><br><span class="line">    puts(<span class="string">&quot;  -D --device   device to use (default /dev/spidev1.0)\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -s --speed    max speed (Hz)\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -d --delay    delay (usec)\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -b --bpw      bits per word \n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -l --loop     loopback\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -H --cpha     clock phase\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -O --cpol     clock polarity\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -L --lsb      least significant bit first\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -C --cs-high  chip select active high\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -3 --3wire    SI/SO signals shared\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -v --verbose  Verbose (show tx buffer)\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -p            Send data (e.g. \&quot;1234\\xde\\xad\&quot;)\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -N --no-cs    no chip select\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -R --ready    slave pulls low to pause\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -2 --dual     dual transfer\n&quot;</span></span><br><span class="line">         <span class="string">&quot;  -4 --quad     quad transfer\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">static void parse_opts(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (1) &#123;</span><br><span class="line">        static const struct option lopts[] = &#123;</span><br><span class="line">            &#123; <span class="string">&quot;device&quot;</span>,  1, 0, <span class="string">&#x27;D&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;speed&quot;</span>,   1, 0, <span class="string">&#x27;s&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;delay&quot;</span>,   1, 0, <span class="string">&#x27;d&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;bpw&quot;</span>,     1, 0, <span class="string">&#x27;b&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;loop&quot;</span>,    0, 0, <span class="string">&#x27;l&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;cpha&quot;</span>,    0, 0, <span class="string">&#x27;H&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;cpol&quot;</span>,    0, 0, <span class="string">&#x27;O&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;lsb&quot;</span>,     0, 0, <span class="string">&#x27;L&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;cs-high&quot;</span>, 0, 0, <span class="string">&#x27;C&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;3wire&quot;</span>,   0, 0, <span class="string">&#x27;3&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;no-cs&quot;</span>,   0, 0, <span class="string">&#x27;N&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;ready&quot;</span>,   0, 0, <span class="string">&#x27;R&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;dual&quot;</span>,    0, 0, <span class="string">&#x27;2&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;verbose&quot;</span>, 0, 0, <span class="string">&#x27;v&#x27;</span> &#125;,</span><br><span class="line">            &#123; <span class="string">&quot;quad&quot;</span>,    0, 0, <span class="string">&#x27;4&#x27;</span> &#125;,</span><br><span class="line">            &#123; NULL, 0, 0, 0 &#125;,</span><br><span class="line">        &#125;;</span><br><span class="line">        int c;</span><br><span class="line"></span><br><span class="line">        c = getopt_long(argc, argv, <span class="string">&quot;D:s:d:b:lHOLC3NR24p:v&quot;</span>, lopts, NULL);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (c == -1)</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line"></span><br><span class="line">        switch (c) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;D&#x27;</span>:</span><br><span class="line">            device = optarg;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;s&#x27;</span>:</span><br><span class="line">            speed = atoi(optarg);</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;d&#x27;</span>:</span><br><span class="line">            delay = atoi(optarg);</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;b&#x27;</span>:</span><br><span class="line">            bits = atoi(optarg);</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;l&#x27;</span>:</span><br><span class="line">            mode |= SPI_LOOP;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;H&#x27;</span>:</span><br><span class="line">            mode |= SPI_CPHA;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;O&#x27;</span>:</span><br><span class="line">            mode |= SPI_CPOL;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">            mode |= SPI_LSB_FIRST;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;C&#x27;</span>:</span><br><span class="line">            mode |= SPI_CS_HIGH;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;3&#x27;</span>:</span><br><span class="line">            mode |= SPI_3WIRE;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;N&#x27;</span>:</span><br><span class="line">            mode |= SPI_NO_CS;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;v&#x27;</span>:</span><br><span class="line">            verbose = 1;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;R&#x27;</span>:</span><br><span class="line">            mode |= SPI_READY;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;p&#x27;</span>:</span><br><span class="line">            input_tx = optarg;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;2&#x27;</span>:</span><br><span class="line">            mode |= SPI_TX_DUAL;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&#x27;4&#x27;</span>:</span><br><span class="line">            mode |= SPI_TX_QUAD;</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        default:</span><br><span class="line">            print_usage(argv[0]);</span><br><span class="line">            <span class="built_in">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (mode &amp; SPI_LOOP) &#123;</span><br><span class="line">        <span class="keyword">if</span> (mode &amp; SPI_TX_DUAL)</span><br><span class="line">            mode |= SPI_RX_DUAL;</span><br><span class="line">        <span class="keyword">if</span> (mode &amp; SPI_TX_QUAD)</span><br><span class="line">            mode |= SPI_RX_QUAD;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">    int ret = 0;</span><br><span class="line">    int fd;</span><br><span class="line">    uint8_t *tx;</span><br><span class="line">    uint8_t *rx;</span><br><span class="line">    int size;</span><br><span class="line"></span><br><span class="line">    parse_opts(argc, argv);</span><br><span class="line"></span><br><span class="line">    fd = open(device, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (fd &lt; 0)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t open device&quot;</span>);</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">     * spi mode</span><br><span class="line">     */</span><br><span class="line">    ret = ioctl(fd, SPI_IOC_WR_MODE32, &amp;mode);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t set spi mode&quot;</span>);</span><br><span class="line"></span><br><span class="line">    ret = ioctl(fd, SPI_IOC_RD_MODE32, &amp;mode);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t get spi mode&quot;</span>);</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">     * bits per word</span><br><span class="line">     */</span><br><span class="line">    ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &amp;bits);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t set bits per word&quot;</span>);</span><br><span class="line"></span><br><span class="line">    ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &amp;bits);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t get bits per word&quot;</span>);</span><br><span class="line"></span><br><span class="line">    /*</span><br><span class="line">     * max speed hz</span><br><span class="line">     */</span><br><span class="line">    ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &amp;speed);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t set max speed hz&quot;</span>);</span><br><span class="line"></span><br><span class="line">    ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &amp;speed);</span><br><span class="line">    <span class="keyword">if</span> (ret == -1)</span><br><span class="line">        pabort(<span class="string">&quot;can&#x27;t get max speed hz&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;spi mode: 0x%x\n&quot;</span>, mode);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;bits per word: %d\n&quot;</span>, bits);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;max speed: %d Hz (%d KHz)\n&quot;</span>, speed, speed/1000);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (input_tx) &#123;</span><br><span class="line">        size = strlen(input_tx+1);</span><br><span class="line">        tx = malloc(size);</span><br><span class="line">        rx = malloc(size);</span><br><span class="line">        size = unescape((char *)tx, input_tx, size);</span><br><span class="line">        transfer(fd, tx, rx, size);</span><br><span class="line">        free(rx);</span><br><span class="line">        free(tx);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        transfer(fd, default_tx, default_rx, sizeof(default_tx));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    close(fd);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将SPI接口的MISO和MOSI进行短接，运行程序进行测试，可见程序测试成功。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">root@pynq:/home/xilinx/code<span class="comment"># gcc -o spi_test spi_test.c </span></span><br><span class="line">root@pynq:/home/xilinx/code<span class="comment"># ./spi_test -D /dev/spidev1.0 -v</span></span><br><span class="line">spi mode: 0x0</span><br><span class="line">bits per word: 8</span><br><span class="line">max speed: 2500000 Hz (2500 KHz)</span><br><span class="line">TX | FF FF FF FF FF FF 40 00 00 00 00 95 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF F0 0D  | ......@......................</span><br><span class="line">RX | FF FF FF FF FF FF 40 00 00 00 00 95 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF F0 0D  | ......@......................</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/spi/" rel="tag"># spi</a>
+              <a href="/tags/%E8%AE%BE%E5%A4%87%E6%A0%91/" rel="tag"># 设备树</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/30/FPGA%E4%B8%8B%E8%BD%BD/" rel="prev" title="FPGA下载">
+      <i class="fa fa-chevron-left"></i> FPGA下载
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="CSerxzm"
+      src="/images/head.jpg">
+  <p class="site-author-name" itemprop="name">CSerxzm</p>
+  <div class="site-description" itemprop="description">这是我的个人博客分享平台</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/CSerxzm" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;CSerxzm" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:xzm3052720966@gmail.com" title="E-Mail → mailto:xzm3052720966@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">CSerxzm</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">115k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:45</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">  </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Ua5Gzcq0VGEcaW00KXi0xHgL-9Nh9j0Va',
+      appKey     : 'AP3QGO8V4O7upuz0qVFRGeu0',
+      placeholder: "请在此输入你的脚步",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
