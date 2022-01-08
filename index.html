@@ -169,6 +169,103 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="CSerxzm">
+      <meta itemprop="description" content="这是我的个人博客分享平台">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有代码的程序">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/" class="post-title-link" itemprop="url">spi性能提升</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-01-08 19:41:15 / 修改时间：21:04:34" itemprop="dateCreated datePublished" datetime="2022-01-08T19:41:15+08:00">2022-01-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/verilog/" itemprop="url" rel="index"><span itemprop="name">verilog</span></a>
+                </span>
+            </span>
+
+          
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>​        在前面的一篇文章中，笔者使用的是PS部分的SPI进行相关的实验，发现其速度较慢，达不到项目的要求，需要传输的速度达到MB/s的级别，而目前使用设备树进行挂载设备的方式，只能达到KB/s的级别，这种方案是行不通的。</p>
+<p>​        通过分析，为了兼容各种外设，Linux系统将各个设备封装成同一的api包，忽略底层的差异，而对于/dev/spi方式的消耗就在这一层次，函数调用的层次比较多且复杂，导致设备之间的延时比较大，吞吐率不高。</p>
+<p>​        对于ZYNQ，可以充分的利用PL部分的逻辑，使用IP核AXI QUAD SPI，使用其作为控制器，将其寄存器地址映射到用户空间(mmap)，直接操作寄存器以达到控制SPI控制器，对连接到Master节点上的Slave进行控制。</p>
+<p>​        在这部分，需要PL部分的配合，其Block Design设计如下，其中PL部分的时钟频率为100M，当然也可以超频，后面的测试部分也是基于这个时钟，Slave的数目为1，数据的宽度为32bit，深度为16，使能FIFO，作为标准的SPI结构，其分配的基地址是0x41E00000，长度为4K。并且将其编译成bitstream，下载到Zynq的PL部分。</p>
+<blockquote>
+<p>注：忽略图中的IP核my_frequencyCounter,只需要注意axi_quad_spi的分配首地址是0x41E00000。</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1057,107 +1154,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/07/18/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/head.jpg">
-      <meta itemprop="name" content="CSerxzm">
-      <meta itemprop="description" content="这是我的个人博客分享平台">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="没有代码的程序">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/18/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/" class="post-title-link" itemprop="url">注解结合切面编程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-18 22:13:00" itemprop="dateCreated datePublished" datetime="2021-07-18T22:13:00+08:00">2021-07-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-14 20:55:02" itemprop="dateModified" datetime="2021-12-14T20:55:02+08:00">2021-12-14</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AE%9E%E6%88%98/" itemprop="url" rel="index"><span itemprop="name">实战</span></a>
-                </span>
-            </span>
-
-          
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>5.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在实习过程中，发现有很多地方关于注解的编写使用，在以前理论学习的过程中，只知道那是框架的基础，如我们学习的spring，dubbo等框架，其中会包含大量的注解，这样方便了我们在平时的编程，在下面的文章中，我主要讲解注解的使用，以及完成简单的demo。在此通过深入的学习，并在自己的学习项目中使用注解和切面编程的方式实现读写锁。</p>
-<h3 id="学习"><a href="#学习" class="headerlink" title="学习"></a>学习</h3><p>对于注解的使用，我们首先要学习元注解，顾名思义，元注解就是注解的注解，它是实现在注解中的，方便我们实现想要的功能。元注解分别有：@Retention、 @Target、 @Document、 @Inherited和@Repeatable（JDK1.8加入）五种。</p>
-<ul>
-<li>@Retention，它是保留保持的意思，其中它的值可以是枚举类RetentionPolicy中的枚举值，用以表示注解的保留时期,具体的使用，看源代码中注解。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/18/%E6%B3%A8%E8%A7%A3%E7%BB%93%E5%90%88%E5%88%87%E9%9D%A2%E7%BC%96%E7%A8%8B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1229,7 +1225,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1286,12 +1282,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">115k</span>
+    <span title="站点总字数">122k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:45</span>
+    <span title="站点阅读时长">1:51</span>
 </div>
 
         
