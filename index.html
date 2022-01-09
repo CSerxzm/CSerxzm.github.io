@@ -192,10 +192,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-01-08 19:41:15 / 修改时间：21:04:34" itemprop="dateCreated datePublished" datetime="2022-01-08T19:41:15+08:00">2022-01-08</time>
+              <time title="创建时间：2022-01-08 19:41:15" itemprop="dateCreated datePublished" datetime="2022-01-08T19:41:15+08:00">2022-01-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-09 14:40:24" itemprop="dateModified" datetime="2022-01-09T14:40:24+08:00">2022-01-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -233,13 +239,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>​        在前面的一篇文章中，笔者使用的是PS部分的SPI进行相关的实验，发现其速度较慢，达不到项目的要求，需要传输的速度达到MB/s的级别，而目前使用设备树进行挂载设备的方式，只能达到KB/s的级别，这种方案是行不通的。</p>
-<p>​        通过分析，为了兼容各种外设，Linux系统将各个设备封装成同一的api包，忽略底层的差异，而对于/dev/spi方式的消耗就在这一层次，函数调用的层次比较多且复杂，导致设备之间的延时比较大，吞吐率不高。</p>
-<p>​        对于ZYNQ，可以充分的利用PL部分的逻辑，使用IP核AXI QUAD SPI，使用其作为控制器，将其寄存器地址映射到用户空间(mmap)，直接操作寄存器以达到控制SPI控制器，对连接到Master节点上的Slave进行控制。</p>
-<p>​        在这部分，需要PL部分的配合，其Block Design设计如下，其中PL部分的时钟频率为100M，当然也可以超频，后面的测试部分也是基于这个时钟，Slave的数目为1，数据的宽度为32bit，深度为16，使能FIFO，作为标准的SPI结构，其分配的基地址是0x41E00000，长度为4K。并且将其编译成bitstream，下载到Zynq的PL部分。</p>
-<blockquote>
-<p>注：忽略图中的IP核my_frequencyCounter,只需要注意axi_quad_spi的分配首地址是0x41E00000。</p>
-</blockquote>
+          <p>​ 在前面的一篇文章中，笔者使用的是 PS 部分的 SPI 进行相关的实验，发现其速度较慢，达不到项目的要求，需要传输的速度达到 MB/s 的级别，而目前使用设备树进行挂载设备的方式，只能达到 KB/s 的级别，这种方案是行不通的。</p>
+<p>​ 通过分析，为了兼容各种外设，Linux 系统将各个设备封装成同一的 api 包，忽略底层的差异，而对于/dev/spi 方式的消耗就在这一层次，函数调用的层次比较多且复杂，导致设备之间的延时比较大，吞吐率不高。</p>
+<p>​ 对于 ZYNQ，可以充分的利用 PL 部分的逻辑，使用 IP 核 AXI QUAD SPI，使用其作为控制器，将其寄存器地址映射到用户空间(mmap)，直接操作寄存器以达到控制 SPI 控制器，对连接到 Master 节点上的 Slave 进行控制。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/#more" rel="contents">
@@ -289,10 +291,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-01-06 13:50:48 / 修改时间：16:27:21" itemprop="dateCreated datePublished" datetime="2022-01-06T13:50:48+08:00">2022-01-06</time>
+              <time title="创建时间：2022-01-06 13:50:48" itemprop="dateCreated datePublished" datetime="2022-01-06T13:50:48+08:00">2022-01-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-09 14:41:29" itemprop="dateModified" datetime="2022-01-09T14:41:29+08:00">2022-01-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -332,11 +340,6 @@
       
           <p>​    在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。</p>
 <p>​    <code>Open Firmware Device Tree</code>或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用DTS描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree发源于PowerPC架构，目的是为了为了消除代码中冗余的各种device注册代码而产生的，现在已经成为了linux的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由Node(节点)、Property(属性)两种元素组成。</p>
-<p>​    在Linux的默认的存在几乎所有的驱动设备的设备镜像，只是没有使能，处于<code>disable</code>的状态，在运行的Linux可以动态的修改，这就需要我们进行Overlay,以SPI为例，进行下面的操作，重写设备树。</p>
-<ul>
-<li>准备文件<code>spi_overlay.dts</code>，后面将他转换成dtbo格式。</li>
-</ul>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">/*</span> <span class="string">Device Tree Overlay for tl-emio-emac-demo test */</span></span><br><span class="line"></span><br><span class="line"><span class="attr">/dts-v1/;</span></span><br><span class="line"><span class="attr">/plugin/;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">/</span> <span class="string">&#123;</span></span><br><span class="line"></span><br><span class="line">        <span class="meta">fragment@0</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">target</span> = <span class="string">&lt;&amp;fpga_full&gt;;</span></span><br><span class="line">                <span class="attr">overlay0</span>: <span class="string">__overlay__ &#123;</span></span><br><span class="line"><span class="comment">                        #address-cells = &lt;1&gt;;</span></span><br><span class="line"><span class="comment">                        #size-cells = &lt;1&gt;;</span></span><br><span class="line">                        <span class="meta">firmware-name</span> = <span class="string">&quot;design_1_wrapper.bit.bin&quot;;</span></span><br><span class="line">                <span class="attr">&#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="attr">&#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="meta">fragment@1</span> <span class="string">&#123;</span></span><br><span class="line">                <span class="attr">target</span> = <span class="string">&lt;&amp;spi0&gt;;</span></span><br><span class="line">                <span class="attr">overlay1</span>: <span class="string">__overlay__ &#123;</span></span><br><span class="line">                        <span class="attr">status</span> = <span class="string">&quot;okay&quot;;</span></span><br><span class="line">                        <span class="meta">device@0</span> <span class="string">&#123;</span></span><br><span class="line">                                <span class="meta">//compatible</span> = <span class="string">&quot;spidev&quot;;</span></span><br><span class="line">                                <span class="attr">compatible</span> = <span class="string">&quot;rohm,dh2228fv&quot;; // Avoid warning info in dmesg</span></span><br><span class="line">                                <span class="attr">reg</span> = <span class="string">&lt;0&gt;; //cs_0</span></span><br><span class="line">                                <span class="meta">spi-max-frequency</span> = <span class="string">&lt;2500000&gt;;</span></span><br><span class="line"><span class="comment">                                #address-cells = &lt;1&gt;;</span></span><br><span class="line"><span class="comment">                                #size-cells = &lt;1&gt;;</span></span><br><span class="line">                        <span class="meta">&#125;;</span> <span class="string"></span></span><br><span class="line">                <span class="attr">&#125;;</span></span><br><span class="line">        <span class="attr">&#125;;</span></span><br><span class="line"><span class="attr">&#125;;</span></span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/#more" rel="contents">
@@ -394,7 +397,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-31 10:53:50" itemprop="dateModified" datetime="2021-12-31T10:53:50+08:00">2021-12-31</time>
+                <time title="修改时间：2022-01-09 14:45:16" itemprop="dateModified" datetime="2022-01-09T14:45:16+08:00">2022-01-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -435,14 +438,6 @@
       
           <p>本文主要描述了如何在Linux系统启动以后，在线将比特流文件更新到ZYNQ PL的过程及方法。</p>
 <p>ZYNQ的开发板是由PS部分的双核arm和PL部分的可编程逻辑组成。可以通过SDK进行下载比特流进行编程，但是这样会导致ZYNQ重启，后面更新，支持热加载对FPGA部分进行编程。</p>
-<p>其前提是PS部分已经运行arm版本的unix系统，让后进行下面的操作步骤：</p>
-<ol>
-<li><p>Vivado 2018.2生成.bit比特流，进入到/runs/impl_1/ 查看是否生成.bit文件。</p>
-</li>
-<li><p>在/runs/impl_1/ 中新建Full_Bitstream.bif ,并将在此文件下输入以下内容：</p>
-</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">all:</span><br><span class="line">&#123;</span><br><span class="line">      E:/ZYNQ/project_2/project_2.runs/impl_1/design_1_wrapper.bit</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/12/30/FPGA%E4%B8%8B%E8%BD%BD/#more" rel="contents">
@@ -492,10 +487,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-12-21 20:19:56 / 修改时间：21:24:52" itemprop="dateCreated datePublished" datetime="2021-12-21T20:19:56+08:00">2021-12-21</time>
+              <time title="创建时间：2021-12-21 20:19:56" itemprop="dateCreated datePublished" datetime="2021-12-21T20:19:56+08:00">2021-12-21</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-09 14:42:48" itemprop="dateModified" datetime="2022-01-09T14:42:48+08:00">2022-01-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -535,10 +536,6 @@
       
           <p>一般情况下，在系统中统一用<code>posedge</code>，避免用<code>negedge</code>，这样可以降低设计的复杂度，减少出错的几率。<strong>边沿检测</strong>用于检测信号的上升沿或下降沿，通常用于使能信号的捕捉等场景。</p>
 <p>在FPGA中，对于信号的检测一般采用<code>posedge</code>上升沿触发或者是<code>negedge</code>下降沿触发，但是在同一个模块中不能使用同一信号的两种触发。即<code>always@(posedge clk or negedge clk)</code>，这种情况是会编译报错的。</p>
-<p>所以一般采用寄存器进行时钟信号的缓存，一般使用如下代码。</p>
-<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//其中signal为输入信号，clk为系统时钟，rst_n为复位时钟</span></span><br><span class="line"><span class="keyword">reg</span> reg_1,reg_2;</span><br><span class="line"><span class="keyword">wire</span> pose,nege<span class="variable">.double_pose</span>;</span><br><span class="line"><span class="keyword">always</span>@(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rst_n)</span><br><span class="line">    <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rst_n) <span class="keyword">begin</span></span><br><span class="line">            reg_1 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">            reg_2 &lt;= <span class="number">1&#x27;b0</span>;</span><br><span class="line">        <span class="keyword">end</span> <span class="keyword">else</span> <span class="keyword">begin</span></span><br><span class="line">            reg_1 &lt;= signal;</span><br><span class="line">            reg_2 &lt;= reg_1;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> pose = reg_1 &amp; (~reg_2);</span><br><span class="line"><span class="keyword">assign</span> pose = reg_2 &amp; (~reg_1);</span><br><span class="line"><span class="keyword">assign</span> double_pose = reg_1^reg_2</span><br></pre></td></tr></table></figure>
-
-<p>通过仿真可以得到如下的时序图，可见得到的上下沿和触发沿会滞后一个时钟信号。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/12/21/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/#more" rel="contents">
@@ -786,7 +783,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-14 11:23:27" itemprop="dateModified" datetime="2021-12-14T11:23:27+08:00">2021-12-14</time>
+                <time title="修改时间：2022-01-09 14:46:22" itemprop="dateModified" datetime="2022-01-09T14:46:22+08:00">2022-01-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -827,8 +824,6 @@
       
           <h2 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;3052720966@qq.com&quot;</span></span><br></pre></td></tr></table></figure>
 <h2 id="添加本地仓库到github"><a href="#添加本地仓库到github" class="headerlink" title="添加本地仓库到github"></a>添加本地仓库到github</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. git init</span><br><span class="line">2. git remote add origin git@github.com:CSerxzm/CSerxzm.github.io.git</span><br><span class="line">3. git branch -u origin/master</span><br><span class="line">4. git pull</span><br></pre></td></tr></table></figure>
-
-<h2 id="忽略已提交文件"><a href="#忽略已提交文件" class="headerlink" title="忽略已提交文件"></a>忽略已提交文件</h2>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/12/13/git/#more" rel="contents">
