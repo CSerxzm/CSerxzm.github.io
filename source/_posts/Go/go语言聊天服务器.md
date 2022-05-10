@@ -13,6 +13,8 @@ tags:
 
 &emsp;&emsp;对于服务端程序，有全局变量`entering`、`leaving`和 `messages`。此后通过监听这三个通道，当有消息数据到来时`select`会感知到，而后就会向保存的连接轮流发送消息，也就实现了广播，而当连接上下线的时候，`func handleConn(conn net.Conn)`会向`leaving`和 `messages`中写入通道变量，然后根据这个变量在`clients := make(map[client]bool)`中添加连接或删除连接。
 
+<!-- more -->
+
 &emsp;&emsp;对于服务端的`main`函数，主要是监听 tcp 的连接，开启广播，而后`for`循环中监听是否有新的连接到来，到来后新建`goroutine`来处理连接，执行函数`func handleConn(conn net.Conn)`,首先会新建`goroutline`来执行函数`func clientWriter(conn net.Conn, ch <-chan string)`,使用创建的`chan`来沟通服务端和客户端，使用函数`conn.RemoteAddr().String()`来获得地址，此后将向通道写入创建的通道变量，并在`clients` 里面进行保存,连接`IO`缓冲区，来打印沟通的信息，直到下线，然后关闭连接。
 
 &emsp;&emsp;对于广播函数`func broadcaster()`,则用于维护局部变量`clients`,当有信息的时，使用`for`进行轮流发送信息,当有上下线时，修改该局部变量。
