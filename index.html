@@ -169,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/05/10/go%E6%A8%A1%E6%8B%9Frpc/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/05/10/Go/go%E8%AF%AD%E8%A8%80%E8%81%8A%E5%A4%A9%E6%9C%8D%E5%8A%A1%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -183,7 +183,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/05/10/go%E6%A8%A1%E6%8B%9Frpc/" class="post-title-link" itemprop="url">go模拟rpc</a>
+            <a href="/2022/05/10/Go/go%E8%AF%AD%E8%A8%80%E8%81%8A%E5%A4%A9%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="post-title-link" itemprop="url">go语言聊天服务器</a>
         </h2>
 
         <div class="post-meta">
@@ -194,7 +194,101 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-05-10 11:08:10 / 修改时间：11:28:40" itemprop="dateCreated datePublished" datetime="2022-05-10T11:08:10+08:00">2022-05-10</time>
+              <time title="创建时间：2022-05-10 12:12:24 / 修改时间：16:43:47" itemprop="dateCreated datePublished" datetime="2022-05-10T12:12:24+08:00">2022-05-10</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+                </span>
+            </span>
+
+          
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>&emsp;&emsp;本节将开发一个聊天的示例程序，它可以在几个用户之间相互广播文本消息。其中广播是通过通道 chan 来实现的。主要文件有服务端<code>netsever.go</code>和客户端<code>netclient.go</code>。</p>
+<h2 id="服务端-netsever-go"><a href="#服务端-netsever-go" class="headerlink" title="服务端 netsever.go"></a>服务端 netsever.go</h2><p>&emsp;&emsp;对于服务端程序，有全局变量<code>entering</code>、<code>leaving</code>和 <code>messages</code>。此后通过监听这三个通道，当有消息数据到来时<code>select</code>会感知到，而后就会向保存的连接轮流发送消息，也就实现了广播，而当连接上下线的时候，<code>func handleConn(conn net.Conn)</code>会向<code>leaving</code>和 <code>messages</code>中写入通道变量，然后根据这个变量在<code>clients := make(map[client]bool)</code>中添加连接或删除连接。</p>
+<p>&emsp;&emsp;对于服务端的<code>main</code>函数，主要是监听 tcp 的连接，开启广播，而后<code>for</code>循环中监听是否有新的连接到来，到来后新建<code>goroutine</code>来处理连接，执行函数<code>func handleConn(conn net.Conn)</code>,首先会新建<code>goroutline</code>来执行函数<code>func clientWriter(conn net.Conn, ch &lt;-chan string)</code>,使用创建的<code>chan</code>来沟通服务端和客户端，使用函数<code>conn.RemoteAddr().String()</code>来获得地址，此后将向通道写入创建的通道变量，并在<code>clients</code> 里面进行保存,连接<code>IO</code>缓冲区，来打印沟通的信息，直到下线，然后关闭连接。</p>
+<p>&emsp;&emsp;对于广播函数<code>func broadcaster()</code>,则用于维护局部变量<code>clients</code>,当有信息的时，使用<code>for</code>进行轮流发送信息,当有上下线时，修改该局部变量。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/05/10/Go/go%E8%AF%AD%E8%A8%80%E8%81%8A%E5%A4%A9%E6%9C%8D%E5%8A%A1%E5%99%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/05/10/Go/go%E6%A8%A1%E6%8B%9Frpc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/head.jpg">
+      <meta itemprop="name" content="CSerxzm">
+      <meta itemprop="description" content="这是我的个人博客分享平台">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="没有代码的程序">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/10/Go/go%E6%A8%A1%E6%8B%9Frpc/" class="post-title-link" itemprop="url">go模拟rpc</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-05-10 11:08:10 / 修改时间：14:42:51" itemprop="dateCreated datePublished" datetime="2022-05-10T11:08:10+08:00">2022-05-10</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,7 +331,7 @@
 <p>&emsp;&emsp;本例中，使用通道代替 Socket 实现 RPC 的过程。客户端与服务器运行在同一个进程，服务器和客户端在两个 goroutine 中运行。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/05/10/go%E6%A8%A1%E6%8B%9Frpc/#more" rel="contents">
+              <a class="btn" href="/2022/05/10/Go/go%E6%A8%A1%E6%8B%9Frpc/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -261,7 +355,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/08/FPGA/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -275,7 +369,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/" class="post-title-link" itemprop="url">spi性能提升</a>
+            <a href="/2022/01/08/FPGA/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/" class="post-title-link" itemprop="url">spi性能提升</a>
         </h2>
 
         <div class="post-meta">
@@ -292,7 +386,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-09 14:40:24" itemprop="dateModified" datetime="2022-01-09T14:40:24+08:00">2022-01-09</time>
+                <time title="修改时间：2022-05-10 14:36:03" itemprop="dateModified" datetime="2022-05-10T14:36:03+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -336,7 +430,7 @@
 <p>​ 对于 ZYNQ，可以充分的利用 PL 部分的逻辑，使用 IP 核 AXI QUAD SPI，使用其作为控制器，将其寄存器地址映射到用户空间(mmap)，直接操作寄存器以达到控制 SPI 控制器，对连接到 Master 节点上的 Slave 进行控制。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/01/08/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/#more" rel="contents">
+              <a class="btn" href="/2022/01/08/FPGA/spi%E6%80%A7%E8%83%BD%E6%8F%90%E5%8D%87/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -360,7 +454,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2022/01/06/FPGA/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -374,7 +468,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/" class="post-title-link" itemprop="url">zynq中Linux修改设备树</a>
+            <a href="/2022/01/06/FPGA/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/" class="post-title-link" itemprop="url">zynq中Linux修改设备树</a>
         </h2>
 
         <div class="post-meta">
@@ -391,7 +485,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-09 14:41:29" itemprop="dateModified" datetime="2022-01-09T14:41:29+08:00">2022-01-09</time>
+                <time title="修改时间：2022-05-10 14:35:53" itemprop="dateModified" datetime="2022-05-10T14:35:53+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -430,11 +524,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>​    在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。</p>
-<p>​    <code>Open Firmware Device Tree</code>或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用DTS描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree发源于PowerPC架构，目的是为了为了消除代码中冗余的各种device注册代码而产生的，现在已经成为了linux的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由Node(节点)、Property(属性)两种元素组成。</p>
+          <p>​ 在 Zynq 7000 系列中，对于驱动设备的修改，一般会使用 xilinx 官方的 SDK Petalinux 进行 Linux 的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是 Pynq（对 Zynq 的封装，集成了 Python 环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。</p>
+<p>​ <code>Open Firmware Device Tree</code>或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用 DTS 描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree 发源于 PowerPC 架构，目的是为了为了消除代码中冗余的各种 device 注册代码而产生的，现在已经成为了 linux 的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由 Node(节点)、Property(属性)两种元素组成。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/01/06/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/#more" rel="contents">
+              <a class="btn" href="/2022/01/06/FPGA/zynq%E4%B8%ADLinux%E4%BF%AE%E6%94%B9%E8%AE%BE%E5%A4%87%E6%A0%91/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -458,7 +552,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/30/FPGA%E4%B8%8B%E8%BD%BD/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/30/FPGA/FPGA%E4%B8%8B%E8%BD%BD/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -472,7 +566,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/30/FPGA%E4%B8%8B%E8%BD%BD/" class="post-title-link" itemprop="url">FPGA下载</a>
+            <a href="/2021/12/30/FPGA/FPGA%E4%B8%8B%E8%BD%BD/" class="post-title-link" itemprop="url">FPGA下载</a>
         </h2>
 
         <div class="post-meta">
@@ -489,7 +583,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-09 14:45:16" itemprop="dateModified" datetime="2022-01-09T14:45:16+08:00">2022-01-09</time>
+                <time title="修改时间：2022-05-10 14:36:29" itemprop="dateModified" datetime="2022-05-10T14:36:29+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -528,11 +622,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文主要描述了如何在Linux系统启动以后，在线将比特流文件更新到ZYNQ PL的过程及方法。</p>
-<p>ZYNQ的开发板是由PS部分的双核arm和PL部分的可编程逻辑组成。可以通过SDK进行下载比特流进行编程，但是这样会导致ZYNQ重启，后面更新，支持热加载对FPGA部分进行编程。</p>
+          <p>本文主要描述了如何在 Linux 系统启动以后，在线将比特流文件更新到 ZYNQ PL 的过程及方法。</p>
+<p>ZYNQ 的开发板是由 PS 部分的双核 arm 和 PL 部分的可编程逻辑组成。可以通过 SDK 进行下载比特流进行编程，但是这样会导致 ZYNQ 重启，后面更新，支持热加载对 FPGA 部分进行编程。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/30/FPGA%E4%B8%8B%E8%BD%BD/#more" rel="contents">
+              <a class="btn" href="/2021/12/30/FPGA/FPGA%E4%B8%8B%E8%BD%BD/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -556,7 +650,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/21/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/21/FPGA/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -570,7 +664,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/21/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/" class="post-title-link" itemprop="url">时钟的上下沿检测</a>
+            <a href="/2021/12/21/FPGA/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/" class="post-title-link" itemprop="url">时钟的上下沿检测</a>
         </h2>
 
         <div class="post-meta">
@@ -587,7 +681,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-09 14:42:48" itemprop="dateModified" datetime="2022-01-09T14:42:48+08:00">2022-01-09</time>
+                <time title="修改时间：2022-05-10 14:36:50" itemprop="dateModified" datetime="2022-05-10T14:36:50+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -627,10 +721,10 @@
 
       
           <p>一般情况下，在系统中统一用<code>posedge</code>，避免用<code>negedge</code>，这样可以降低设计的复杂度，减少出错的几率。<strong>边沿检测</strong>用于检测信号的上升沿或下降沿，通常用于使能信号的捕捉等场景。</p>
-<p>在FPGA中，对于信号的检测一般采用<code>posedge</code>上升沿触发或者是<code>negedge</code>下降沿触发，但是在同一个模块中不能使用同一信号的两种触发。即<code>always@(posedge clk or negedge clk)</code>，这种情况是会编译报错的。</p>
+<p>在 FPGA 中，对于信号的检测一般采用<code>posedge</code>上升沿触发或者是<code>negedge</code>下降沿触发，但是在同一个模块中不能使用同一信号的两种触发。即<code>always@(posedge clk or negedge clk)</code>，这种情况是会编译报错的。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/21/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/#more" rel="contents">
+              <a class="btn" href="/2021/12/21/FPGA/%E6%97%B6%E9%92%9F%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%B2%BF%E6%A3%80%E6%B5%8B/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -654,7 +748,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/15/java%E6%B3%9B%E5%9E%8B/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/15/Java/java%E6%B3%9B%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -668,7 +762,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/15/java%E6%B3%9B%E5%9E%8B/" class="post-title-link" itemprop="url">java泛型</a>
+            <a href="/2021/12/15/Java/java%E6%B3%9B%E5%9E%8B/" class="post-title-link" itemprop="url">java泛型</a>
         </h2>
 
         <div class="post-meta">
@@ -677,10 +771,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-12-15 20:56:52 / 修改时间：12:45:17" itemprop="dateCreated datePublished" datetime="2021-12-15T20:56:52+08:00">2021-12-15</time>
+              <time title="创建时间：2021-12-15 20:56:52" itemprop="dateCreated datePublished" datetime="2021-12-15T20:56:52+08:00">2021-12-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-05-10 14:36:14" itemprop="dateModified" datetime="2022-05-10T14:36:14+08:00">2022-05-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -718,14 +818,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h1><p>泛型就相当于C++中的模板，来适应任何类型。使用泛型可以不必对类型进行强制转换，它是通过编译器对类型进行检查。</p>
+          <h1 id="泛型"><a href="#泛型" class="headerlink" title="泛型"></a>泛型</h1><p>泛型就相当于 C++中的模板，来适应任何类型。使用泛型可以不必对类型进行强制转换，它是通过编译器对类型进行检查。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//没有使用泛型的后果</span></span><br><span class="line">ArrayList list = <span class="keyword">new</span> ArrayList();</span><br><span class="line">list.add(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line"><span class="comment">// 获取到Object，必须强制转型为String，这样容易出现ClassCastException，即“误转型”</span></span><br><span class="line">String first = (String) list.get(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
 
 <p>同时，对于泛型，需要注意的是它的<strong>向上转型</strong>，如下面类型<code>ArrayList&lt;T&gt;</code>可以向上转型为<code>List&lt;T&gt;</code>。</p>
 <p>要特别注意:不能把<code>ArrayList&lt;Integer&gt;</code>向上转型为<code>ArrayList&lt;Number&gt;</code>或<code>List&lt;Number&gt;</code>。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/15/java%E6%B3%9B%E5%9E%8B/#more" rel="contents">
+              <a class="btn" href="/2021/12/15/Java/java%E6%B3%9B%E5%9E%8B/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -749,7 +849,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/14/java-stream/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/14/Java/java-stream/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -763,7 +863,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/14/java-stream/" class="post-title-link" itemprop="url">java-stream</a>
+            <a href="/2021/12/14/Java/java-stream/" class="post-title-link" itemprop="url">java-stream</a>
         </h2>
 
         <div class="post-meta">
@@ -772,10 +872,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-12-14 14:53:14 / 修改时间：19:38:00" itemprop="dateCreated datePublished" datetime="2021-12-14T14:53:14+08:00">2021-12-14</time>
+              <time title="创建时间：2021-12-14 14:53:14" itemprop="dateCreated datePublished" datetime="2021-12-14T14:53:14+08:00">2021-12-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-05-10 14:35:37" itemprop="dateModified" datetime="2022-05-10T14:35:37+08:00">2022-05-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -813,14 +919,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Java 8 API添加了一个新的抽象称为流Stream，可以让你以一种声明的方式处理数据。</p>
-<p>Stream API可以极大提高Java程序员的生产力，让程序员写出高效率、干净、简洁的代码。这种风格将要处理的元素集合看作一种流， 流在管道中传输， 并且可以在管道的节点上进行处理， 比如筛选， 排序，聚合等。</p>
+          <p>Java 8 API 添加了一个新的抽象称为流 Stream，可以让你以一种声明的方式处理数据。</p>
+<p>Stream API 可以极大提高 Java 程序员的生产力，让程序员写出高效率、干净、简洁的代码。这种风格将要处理的元素集合看作一种流， 流在管道中传输， 并且可以在管道的节点上进行处理， 比如筛选， 排序，聚合等。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+--------------------+       +------+   +------+   +---+   +-------+</span><br><span class="line">| stream of elements +-----&gt; |filter+-&gt; |sorted+-&gt; |map+-&gt; |collect|</span><br><span class="line">+--------------------+       +------+   +------+   +---+   +-------+</span><br></pre></td></tr></table></figure>
 
-<h2 id="生成Stream"><a href="#生成Stream" class="headerlink" title="生成Stream"></a>生成Stream</h2><p>生成Stream的方法比较多样。</p>
+<h2 id="生成-Stream"><a href="#生成-Stream" class="headerlink" title="生成 Stream"></a>生成 Stream</h2><p>生成 Stream 的方法比较多样。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/14/java-stream/#more" rel="contents">
+              <a class="btn" href="/2021/12/14/Java/java-stream/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -844,7 +950,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/13/git/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/13/Tools/git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -858,7 +964,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/13/git/" class="post-title-link" itemprop="url">git</a>
+            <a href="/2021/12/13/Tools/git/" class="post-title-link" itemprop="url">git</a>
         </h2>
 
         <div class="post-meta">
@@ -875,7 +981,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-09 14:46:22" itemprop="dateModified" datetime="2022-01-09T14:46:22+08:00">2022-01-09</time>
+                <time title="修改时间：2022-05-10 14:46:48" itemprop="dateModified" datetime="2022-05-10T14:46:48+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -915,10 +1021,11 @@
 
       
           <h2 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;3052720966@qq.com&quot;</span></span><br></pre></td></tr></table></figure>
-<h2 id="添加本地仓库到github"><a href="#添加本地仓库到github" class="headerlink" title="添加本地仓库到github"></a>添加本地仓库到github</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. git init</span><br><span class="line">2. git remote add origin git@github.com:CSerxzm/CSerxzm.github.io.git</span><br><span class="line">3. git branch -u origin/master</span><br><span class="line">4. git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加本地仓库到-github"><a href="#添加本地仓库到-github" class="headerlink" title="添加本地仓库到 github"></a>添加本地仓库到 github</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. git init</span><br><span class="line">2. git remote add origin git@github.com:CSerxzm/CSerxzm.github.io.git</span><br><span class="line">3. git branch -u origin/master</span><br><span class="line">4. git pull</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/13/git/#more" rel="contents">
+              <a class="btn" href="/2021/12/13/Tools/git/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -942,7 +1049,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/12/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/12/Java/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/head.jpg">
@@ -956,7 +1063,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/12/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/" class="post-title-link" itemprop="url">多线程</a>
+            <a href="/2021/12/12/Java/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/" class="post-title-link" itemprop="url">多线程</a>
         </h2>
 
         <div class="post-meta">
@@ -973,7 +1080,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-14 11:23:38" itemprop="dateModified" datetime="2021-12-14T11:23:38+08:00">2021-12-14</time>
+                <time title="修改时间：2022-05-10 14:35:43" itemprop="dateModified" datetime="2022-05-10T14:35:43+08:00">2022-05-10</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1012,117 +1119,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="线程的创建与运行"><a href="#线程的创建与运行" class="headerlink" title="线程的创建与运行"></a>线程的创建与运行</h1><p>Java中有三种方式创建线程，分别为实现Runnable接口的run方法，继承Thread类并重写run方法，实现Callable接口的call方法，将他包装成FutureTask。</p>
+          <h1 id="线程的创建与运行"><a href="#线程的创建与运行" class="headerlink" title="线程的创建与运行"></a>线程的创建与运行</h1><p>Java 中有三种方式创建线程，分别为实现 Runnable 接口的 run 方法，继承 Thread 类并重写 run 方法，实现 Callable 接口的 call 方法，将他包装成 FutureTask。</p>
 <ul>
-<li>实现Runnable方法</li>
+<li>实现 Runnable 方法</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyThread myThread = <span class="keyword">new</span> MyThread();</span><br><span class="line">        <span class="keyword">new</span> Thread(myThread).start();</span><br><span class="line">        <span class="keyword">new</span> Thread(myThread).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>继承Thread</li>
+<li>继承 Thread</li>
 </ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/12/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://cserxzm.cn/2021/12/12/%E5%8F%8D%E5%B0%84%E6%B3%A8%E8%A7%A3%E5%92%8C%E4%BB%A3%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/head.jpg">
-      <meta itemprop="name" content="CSerxzm">
-      <meta itemprop="description" content="这是我的个人博客分享平台">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="没有代码的程序">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/12/%E5%8F%8D%E5%B0%84%E6%B3%A8%E8%A7%A3%E5%92%8C%E4%BB%A3%E7%90%86/" class="post-title-link" itemprop="url">反射注解和代理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-12-12 18:54:16" itemprop="dateCreated datePublished" datetime="2021-12-12T18:54:16+08:00">2021-12-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-16 22:08:34" itemprop="dateModified" datetime="2021-12-16T22:08:34+08:00">2021-12-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
-                </span>
-            </span>
-
-          
-  
-  <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>21k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>19 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h1><h2 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h2><p>代理模式又叫<strong>委托模式</strong>，是为某个对象提供一个代理对象，并且由代理对象控制对原对象的访问。代理模式通俗来讲就是我们生活中常见的中介。简单来说就是我们使用代理对象来代替对真实对象(real object)的访问，这样就可以<strong>在不修改原目标对象的前提下，提供额外的功能操作，扩展目标对象的功能</strong>。</p>
-<p><strong>代理模式的主要作用是扩展目标对象的功能，比如说在目标对象的某个方法执行前后你可以增加一些自定义的操作</strong>。 </p>
-<h2 id="静态代理"><a href="#静态代理" class="headerlink" title="静态代理"></a>静态代理</h2>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/12/%E5%8F%8D%E5%B0%84%E6%B3%A8%E8%A7%A3%E5%92%8C%E4%BB%A3%E7%90%86/#more" rel="contents">
+              <a class="btn" href="/2021/12/12/Java/Java%E5%A4%9A%E8%BF%9B%E7%A8%8B/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1213,7 +1221,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1270,12 +1278,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">124k</span>
+    <span title="站点总字数">127k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:52</span>
+    <span title="站点阅读时长">1:55</span>
 </div>
 
         
