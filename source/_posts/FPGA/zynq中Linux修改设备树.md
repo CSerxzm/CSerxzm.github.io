@@ -3,21 +3,21 @@ title: zynq中Linux修改设备树
 comments: false
 date: 2022-01-06 13:50:48
 categories:
-- verilog
+  - verilog
 tags:
-- spi
-- 设备树
+  - spi
+  - 设备树
 ---
 
-​	在Zynq 7000系列中，对于驱动设备的修改，一般会使用xilinx官方的SDK Petalinux进行Linux的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是Pynq（对Zynq的封装，集成了Python环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。
+​ 在 Zynq 7000 系列中，对于驱动设备的修改，一般会使用 xilinx 官方的 SDK Petalinux 进行 Linux 的内核配置，然后进行重新打包成镜像，但是笔者在实验中使用的是 Pynq（对 Zynq 的封装，集成了 Python 环境），所用的镜像是已有的镜像，在不想重新打包镜像文件的前提下，进行以下的实验操作。
 
-​	`Open Firmware Device Tree`或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用DTS描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree发源于PowerPC架构，目的是为了为了消除代码中冗余的各种device注册代码而产生的，现在已经成为了linux的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由Node(节点)、Property(属性)两种元素组成。
+​ `Open Firmware Device Tree`或者简单设备树，是一种描述硬件的一种数据结构和语言。特别的是，使用 DTS 描述操作系统只读的硬件信息，因此操作系统中不需要硬编码描述设备信息。DeviceTree 发源于 PowerPC 架构，目的是为了为了消除代码中冗余的各种 device 注册代码而产生的，现在已经成为了 linux 的通用机制。设备树是一种用树状结构的方式来描述硬件信息，由 Node(节点)、Property(属性)两种元素组成。
 
 <!-- more -->
 
-​	在Linux的默认的存在几乎所有的驱动设备的设备镜像，只是没有使能，处于`disable`的状态，在运行的Linux可以动态的修改，这就需要我们进行Overlay,以SPI为例，进行下面的操作，重写设备树。
+​ 在 Linux 的默认的存在几乎所有的驱动设备的设备镜像，只是没有使能，处于`disable`的状态，在运行的 Linux 可以动态的修改，这就需要我们进行 Overlay,以 SPI 为例，进行下面的操作，重写设备树。
 
-* 准备文件`spi_overlay.dts`，后面将他转换成dtbo格式。
+- 准备文件`spi_overlay.dts`，后面将他转换成 dtbo 格式。
 
 ```properties
 /* Device Tree Overlay for tl-emio-emac-demo test */
@@ -48,13 +48,13 @@ tags:
                                 spi-max-frequency = <2500000>;
                                 #address-cells = <1>;
                                 #size-cells = <1>;
-                        }; 
+                        };
                 };
         };
 };
 ```
 
-* 转换成dtbo的文件格式使用的脚本,此后运行将会产生dtbo格式的文件。
+- 转换成 dtbo 的文件格式使用的脚本,此后运行将会产生 dtbo 格式的文件。
 
 ```bash
 #!/bin/sh
@@ -69,9 +69,9 @@ DTC=dtc
 ${DTC} -O dtb -o ${name}.dtbo -b 0 -@ ${filename}
 ```
 
-> 如果没有dtc工具，可运行 apt-get install device-tree-compiler -y 进行安装后，再执行上面的脚本文件。
+> 如果没有 dtc 工具，可运行 apt-get install device-tree-compiler -y 进行安装后，再执行上面的脚本文件。
 
-* 后面进行以下的指令执行。
+- 后面进行以下的指令执行。
 
 ```bash
 root@pynq:/home/xilinx# mkdir /configfs
@@ -84,12 +84,12 @@ root@pynq:/home/xilinx# mkdir /configfs/device-tree/overlays/spi
 root@pynq:/home/xilinx# ls /configfs/device-tree/overlays/spi
 dtbo  path  status
 root@pynq:/home/xilinx# cp spi_overlay.dtbo /lib/firmware/
-root@pynq:/home/xilinx# echo spi_overlay.dtbo > /configfs/device-tree/overlays/spi/path 
+root@pynq:/home/xilinx# echo spi_overlay.dtbo > /configfs/device-tree/overlays/spi/path
 root@pynq:/home/xilinx# ls /dev/spidev*
 /dev/spidev1.0
 ```
 
-* 使用测试spi_test.c文件进行测试
+- 使用测试 spi_test.c 文件进行测试
 
 ```bash
 #include <stdint.h>
@@ -399,10 +399,10 @@ int main(int argc, char *argv[])
 }
 ```
 
-* 将SPI接口的MISO和MOSI进行短接，运行程序进行测试，可见程序测试成功。
+- 将 SPI 接口的 MISO 和 MOSI 进行短接，运行程序进行测试，可见程序测试成功。
 
 ```bash
-root@pynq:/home/xilinx/code# gcc -o spi_test spi_test.c 
+root@pynq:/home/xilinx/code# gcc -o spi_test spi_test.c
 root@pynq:/home/xilinx/code# ./spi_test -D /dev/spidev1.0 -v
 spi mode: 0x0
 bits per word: 8
@@ -410,4 +410,3 @@ max speed: 2500000 Hz (2500 KHz)
 TX | FF FF FF FF FF FF 40 00 00 00 00 95 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF F0 0D  | ......@......................
 RX | FF FF FF FF FF FF 40 00 00 00 00 95 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF F0 0D  | ......@......................
 ```
-

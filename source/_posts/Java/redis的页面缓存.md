@@ -2,21 +2,21 @@
 title: redis页面缓存
 date: 2021-5-22 22:13:00
 comments: false
-categories: 
-- 实战
+categories:
+  - 实战
 tags:
-- redis
-- 页面缓存
-- 手动模板渲染
+  - redis
+  - 页面缓存
+  - 手动模板渲染
 ---
 
-在以前涉及到的redis过程中，笔者主要是使用redis缓存mapper层查询的相关数据对象，没有接触到界面缓存对象，今天笔者有幸接触到相关tips。
+在以前涉及到的 redis 过程中，笔者主要是使用 redis 缓存 mapper 层查询的相关数据对象，没有接触到界面缓存对象，今天笔者有幸接触到相关 tips。
 
-开门见山，用事实说话，在没有使用缓存的时候，笔者用jmeter进行压测，在1000次的请求中，其吞吐量为473每秒，而后使用redis缓存页面的时候，吞吐量为747每秒，提升将近两倍，可见其提升幅度之大。
+开门见山，用事实说话，在没有使用缓存的时候，笔者用 jmeter 进行压测，在 1000 次的请求中，其吞吐量为 473 每秒，而后使用 redis 缓存页面的时候，吞吐量为 747 每秒，提升将近两倍，可见其提升幅度之大。
 
 <!-- more -->
 
-其中主要的思路是将theymeleaf模板的渲染手动来实现，将手动渲染的页面存入redis，有则直接返回，没有则手动渲染存入redis，并返回给用户。
+其中主要的思路是将 theymeleaf 模板的渲染手动来实现，将手动渲染的页面存入 redis，有则直接返回，没有则手动渲染存入 redis，并返回给用户。
 
 ```java
     //用于手动渲染界面
@@ -50,6 +50,6 @@ tags:
     }
 ```
 
-其代码实现如上，发现redis的操作与之前的操作一致，使用的都是redisTemplate，不同的是涉及到手动的渲染界面。其中`WebContext`和`ThymeleafViewResolver`对象至关重要。为了使页面的变化让用户能够感知，我们也设置了redis的缓存失效时间，如60秒。
+其代码实现如上，发现 redis 的操作与之前的操作一致，使用的都是 redisTemplate，不同的是涉及到手动的渲染界面。其中`WebContext`和`ThymeleafViewResolver`对象至关重要。为了使页面的变化让用户能够感知，我们也设置了 redis 的缓存失效时间，如 60 秒。
 
-还有更多关于并发的优化问题，秒杀的超卖问题，源码见github，网址是[seckill源码](https://github.com/CSerxzm/seckill) 。
+还有更多关于并发的优化问题，秒杀的超卖问题，源码见 github，网址是[seckill 源码](https://github.com/CSerxzm/seckill) 。

@@ -3,23 +3,23 @@ title: FPGA下载
 comments: false
 date: 2021-12-30 21:02:48
 categories:
-- verilog
+  - verilog
 tags:
-- PL编程
-- FPGA
+  - PL编程
+  - FPGA
 ---
 
-本文主要描述了如何在Linux系统启动以后，在线将比特流文件更新到ZYNQ PL的过程及方法。
+本文主要描述了如何在 Linux 系统启动以后，在线将比特流文件更新到 ZYNQ PL 的过程及方法。
 
-ZYNQ的开发板是由PS部分的双核arm和PL部分的可编程逻辑组成。可以通过SDK进行下载比特流进行编程，但是这样会导致ZYNQ重启，后面更新，支持热加载对FPGA部分进行编程。
+ZYNQ 的开发板是由 PS 部分的双核 arm 和 PL 部分的可编程逻辑组成。可以通过 SDK 进行下载比特流进行编程，但是这样会导致 ZYNQ 重启，后面更新，支持热加载对 FPGA 部分进行编程。
 
 <!-- more -->
 
-其前提是PS部分已经运行arm版本的unix系统，让后进行下面的操作步骤：
+其前提是 PS 部分已经运行 arm 版本的 unix 系统，让后进行下面的操作步骤：
 
-1. Vivado 2018.2生成.bit比特流，进入到/runs/impl_1/ 查看是否生成.bit文件。
+1. Vivado 2018.2 生成.bit 比特流，进入到/runs/impl_1/ 查看是否生成.bit 文件。
 
-2. 在/runs/impl_1/ 中新建Full_Bitstream.bif ,并将在此文件下输入以下内容：
+2. 在/runs/impl_1/ 中新建 Full_Bitstream.bif ,并将在此文件下输入以下内容：
 
 ```shell
 all:
@@ -28,16 +28,17 @@ all:
 }
 ```
 
-其中`E:/ZYNQ/project_2/project_2.runs/impl_1/design_1_wrapper.bit`为我的.bit的文件路径，这里建议使用全路径。
+其中`E:/ZYNQ/project_2/project_2.runs/impl_1/design_1_wrapper.bit`为我的.bit 的文件路径，这里建议使用全路径。
 
-3. 在Vivado Tcl Shell命令行中运行Full_Bitstream.bif 生成.bit.bin文件，运行命令如下所示：
+3. 在 Vivado Tcl Shell 命令行中运行 Full_Bitstream.bif 生成.bit.bin 文件，运行命令如下所示：
 
 ```shell
 bootgen -image E:/ZYNQ/project_2/project_2.runs/impl_1/Full_Bitstream.bif -arch zynq -process_bitstream bin
 ```
-其中`E:/ZYNQ/project_2/project_2.runs/impl_1/Full_Bitstream.bif`为我的Full_Bitstream.bif文件所在位置，这里建议使用全路径。
 
-4. 最后会在在/.runs/impl_1/文件夹中生成.bit.bin文件，将此文件拷贝到zynq的文件系统，之后加载比特流到FPGA系统如下：
+其中`E:/ZYNQ/project_2/project_2.runs/impl_1/Full_Bitstream.bif`为我的 Full_Bitstream.bif 文件所在位置，这里建议使用全路径。
+
+4. 最后会在在/.runs/impl_1/文件夹中生成.bit.bin 文件，将此文件拷贝到 zynq 的文件系统，之后加载比特流到 FPGA 系统如下：
 
 ```shell
 echo 0 > /sys/class/fpga_manager/fpga0/flags
@@ -50,7 +51,7 @@ echo design_1_wrapper.bit.bin > /sys/class/fpga_manager/fpga0/firmware
 
 ## 其他
 
-对于使用ZYNQ的时候，需要访问对应内存映射下的寄存器状态，使用下面的devmem.c编译成可执行文件。
+对于使用 ZYNQ 的时候，需要访问对应内存映射下的寄存器状态，使用下面的 devmem.c 编译成可执行文件。
 
 ```c
 #include <stdio.h>
@@ -73,7 +74,7 @@ echo design_1_wrapper.bit.bin > /sys/class/fpga_manager/fpga0/firmware
 
 int main(int argc, char **argv) {
     int fd;
-    void *map_base, *virt_addr; 
+    void *map_base, *virt_addr;
     unsigned long read_result, writeval;
     off_t target;
     int access_type = 'w';
@@ -93,13 +94,13 @@ int main(int argc, char **argv) {
 
 
     if((fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
-    printf("/dev/mem opened.\n"); 
+    printf("/dev/mem opened.\n");
     fflush(stdout);
 
     /* Map one page */ //将内核空间映射到用户空间
     map_base = mmap(0, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, target & ~MAP_MASK);
     if(map_base == (void *) -1) FATAL;
-    printf("Memory mapped at address %p.\n", map_base); 
+    printf("Memory mapped at address %p.\n", map_base);
     fflush(stdout);
 
     virt_addr = map_base + (target & MAP_MASK);
@@ -118,7 +119,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "Illegal data type '%c'.\n", access_type);
             exit(2);
     }
-    printf("Value at address 0x%X (%p): 0x%X\n", target, virt_addr, read_result); 
+    printf("Value at address 0x%X (%p): 0x%X\n", target, virt_addr, read_result);
     fflush(stdout);
     //若参数大于3个，则说明为写入操做，针对不一样参数写入不一样类型的数据
     if(argc > 3) {
@@ -137,7 +138,7 @@ int main(int argc, char **argv) {
                 read_result = *((unsigned long *) virt_addr);
                 break;
         }
-        printf("Written 0x%X; readback 0x%X\n", writeval, read_result); 
+        printf("Written 0x%X; readback 0x%X\n", writeval, read_result);
         fflush(stdout);
     }
 
@@ -148,7 +149,7 @@ int main(int argc, char **argv) {
 ```
 
 它会使用虚拟字符设备`/dev/mem`，将物理空间映射到用户空间上的虚拟地址，就可以使用为寄存器分配的逻辑地址访问寄存器的地址。
-如下图我使用该程序读写挂载到`0x43c00000`的AXI-Lite的寄存器的值，可见读写正确，在实际的使用中，可将该寄存器中的值映射到PL部分的引脚，完成外部数据的获取或输入。
+如下图我使用该程序读写挂载到`0x43c00000`的 AXI-Lite 的寄存器的值，可见读写正确，在实际的使用中，可将该寄存器中的值映射到 PL 部分的引脚，完成外部数据的获取或输入。
 
 ```shell
 root@pynq:/home/xilinx# ./devmem 0x43c00000 w 0xfffffff0
@@ -161,4 +162,3 @@ root@pynq:/home/xilinx# ./devmem 0x43c00000
 Memory mapped at address 0xb6f35000.
 Value at address 0x43C00000 (0xb6f35000): 0xFFFFFFF0
 ```
-
